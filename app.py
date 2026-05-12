@@ -378,6 +378,8 @@ with wi2:
     cps_thresh = st.slider("🚔 Under-policed flag (crimes per police station)", 500, 15000, 3000, 250)
 st.markdown("---")
 
+hero_container = st.container()
+
 # ── FILTER TITLE ──────────────────────────────────────────────────────────────
 st.markdown(
     """
@@ -502,23 +504,24 @@ else:
     risk_text = "Under threshold"
 
 # ── HERO ──────────────────────────────────────────────────────────────────────
-st.markdown(
-    f"""
-<div class="hero-banner">
-    <h1 class="hero-title">
-        NSW <span>Crime Intelligence</span>
-    </h1>
+with hero_container:
+    st.markdown(
+        f"""
+    <div class="hero-banner">
+        <h1 class="hero-title">
+            NSW <span>Crime Intelligence</span>
+        </h1>
 
-<p class='hero-sub'>
-    A data narrative exploring where crime concentrates,
-    how policing resources are distributed,
-    and what the numbers mean for community safety —
-    {year_range[0]} to {year_range[1]}.
-</p>
-</div>
-""",
-    unsafe_allow_html=True,
-)
+    <p class='hero-sub'>
+        A data narrative exploring where crime concentrates,
+        how policing resources are distributed,
+        and what the numbers mean for community safety —
+        {year_range[0]} to {year_range[1]}.
+    </p>
+    </div>
+    """,
+        unsafe_allow_html=True,
+    )
 
 # ── STORY SNAPSHOT ────────────────────────────────────────────────────────────
 st.markdown(
