@@ -1294,18 +1294,14 @@ if not under_policed_df.empty:
         }
     )
 
+    display_df = display_df.copy()
+    display_df["Crimes per Station"] = display_df["Crimes per Station"].map(lambda x: f"{x:,.0f}")
+    display_df["Total Incidents"] = display_df["Total Incidents"].map(lambda x: f"{x:,.0f}")
+    display_df["Police Stations"] = display_df["Police Stations"].map(lambda x: f"{x:,.0f}")
+    display_df["Crime Rate / 1k"] = display_df["Crime Rate / 1k"].map(lambda x: f"{x:,.1f}")
+
     st.dataframe(
-        display_df.style.format(
-            {
-                "Crimes per Station": "{:,.0f}",
-                "Total Incidents": "{:,.0f}",
-                "Police Stations": "{:,.0f}",
-                "Crime Rate / 1k": "{:,.1f}",
-            }
-        ).background_gradient(
-            subset=["Crimes per Station"],
-            cmap="Reds"
-        ),
+        display_df,
         use_container_width=True,
         hide_index=True,
     )
