@@ -1,16 +1,25 @@
 """
 NSW Crime Intelligence Dashboard — Data Narrative
+
+Single-file Streamlit app: loads cleaned crime + context CSVs, applies user filters,
+recomputes per-LGA summaries (rates, crimes-per-station), then renders a linear
+"narrative arc" (Acts 1–6) with Plotly charts and optional GeoJSON maps.
+
+Execution model:
+    Streamlit reruns this script top-to-bottom on each interaction; expensive
+    reads are wrapped in @st.cache_data (see load_all).
 """
 
 import os
+
+import geopandas as gpd  # GeoJSON / LGA polygons for choropleth and mapbox layers
 import numpy as np
 import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
 import streamlit as st
-import requests
-import json
 
+# Browser tab title, layout, and default sidebar — Part 3 design-system requirement (.streamlit/config.toml complements this).
 st.set_page_config(
     page_title="NSW Crime Intelligence | Data Narrative",
     page_icon="🔍",
@@ -19,6 +28,7 @@ st.set_page_config(
 )
 
 # ── GLOBAL CSS ────────────────────────────────────────────────────────────────
+# Injected once: typography, hero card, KPI tiles, narrative section headers (Acts).
 st.markdown(
     """
 <style>
@@ -265,6 +275,14 @@ CSV_DIR = os.path.join(BASE_DIR, "final_csvs")
 # ── LOAD DATA ─────────────────────────────────────────────────────────────────
 @st.cache_data(show_spinner="Loading NSW crime data…")
 def load_all():
+    """Load all CSV inputs once and return aligned DataFrames.
+
+    Files live under final_csvs/ (cleaned BOCSAR + enrichment). Police station
+    rows are aggregated to an approximate LGA centroid for bubble / map overlays.
+
+    Note: ``daily_df`` is loaded for parity with the data pipeline but is not
+    referenced by the current Acts (all charts use monthly LGA rows in ``crime_df``).
+    """
     crime_df = pd.read_csv(
         os.path.join(CSV_DIR, "nsw_lga_crime_tableau_clean.csv"),
         parse_dates=["Month"],
@@ -287,6 +305,7 @@ def load_all():
         os.path.join(CSV_DIR, "nsw_police_stations_with_lga_clean.csv")
     )
 
+    # Mean lat/lon of stations per LGA — used as a simple label position (not official centroids).
     lga_centroids = (
         police_geo_df.dropna(subset=["LGA"])
         .groupby("LGA")[["Latitude", "Longitude"]]
@@ -301,6 +320,12 @@ crime_df, daily_df, pop_df, police_cnt_df, police_geo_df, lga_centroids = load_a
 
 # ── HELPERS ───────────────────────────────────────────────────────────────────
 def compute_lga_summary(df: pd.DataFrame) -> pd.DataFrame:
+    """Aggregate filtered incidents to LGA level and merge population + police counts.
+
+    Derived columns (document in README data dictionary):
+        Crime_Rate_Per_1000 — incidents per 1,000 residents (population-weighted context).
+        Crimes_Per_Station — total incidents / station count (0 stations → NaN, dropped downstream).
+    """
     agg = (
         df.groupby("LGA")["Incident_Count"]
         .sum()
@@ -331,6 +356,7 @@ def compute_lga_summary(df: pd.DataFrame) -> pd.DataFrame:
     return out
 
 
+# Shared Plotly layout tokens — keeps Acts visually consistent with the assignment design system.
 PLOTLY_BASE = dict(
     paper_bgcolor="white",
     plot_bgcolor="white",
@@ -362,6 +388,7 @@ PLOTLY_BASE = dict(
 
 
 def themed(fig, h: int = None):
+    """Apply shared Plotly styling for consistent dashboard appearance."""
     fig.update_layout(**PLOTLY_BASE)
     if h:
         fig.update_layout(height=h)
@@ -369,6 +396,7 @@ def themed(fig, h: int = None):
 
 
 # ── WHAT-IF THRESHOLDS ───────────────────────────────────────────────────────
+# Interactive policy levers: drive KPI copy, risk badges, and Act 5 threshold line — advanced feature for narrative.
 st.markdown("---")
 st.markdown("**⚙️ What-If Thresholds** — adjust to model different policy scenarios", unsafe_allow_html=False)
 wi1, wi2 = st.columns(2)
@@ -378,6 +406,7 @@ with wi2:
     cps_thresh = st.slider("🚔 Under-policed flag (crimes per police station)", 500, 15000, 3000, 250)
 st.markdown("---")
 
+# Reserve vertical slot so hero renders above filters visually while filters still run first (need fc for hero subtitle range).
 hero_container = st.container()
 
 # ── FILTER TITLE ──────────────────────────────────────────────────────────────
@@ -421,6 +450,7 @@ with f3:
     )
 
 # ── APPLY FILTERS ─────────────────────────────────────────────────────────────
+# Working slice for all downstream charts; mutating fc does not alter cached crime_df.
 fc = crime_df.copy()
 
 fc = fc[
@@ -430,6 +460,7 @@ fc = fc[
     )
 ]
 
+# "All LGAs" / "All Offences" sentinel options mean no extra slice.
 if "All LGAs" not in lga_pick and len(lga_pick) > 0:
     fc = fc[fc["LGA"].isin(lga_pick)]
 
@@ -478,6 +509,7 @@ top_off = (
 )
 
 # ── YEAR-OVER-YEAR CHANGE ─────────────────────────────────────────────────────
+# Compares last year in slider to prior year within the same filtered slice (KPI delta).
 if not fc.empty and year_range[1] > year_range[0]:
     prev_y = fc[fc["Year"] == year_range[1] - 1]["Incident_Count"].sum()
     curr_y = fc[fc["Year"] == year_range[1]]["Incident_Count"].sum()
@@ -490,6 +522,7 @@ yoy_cls = "neg" if yoy > 0 else "pos"
 yoy_sym = "▲" if yoy > 0 else "▼"
 
 # ── DYNAMIC RISK STATUS ───────────────────────────────────────────────────────
+# Cosmetic CSS classes for KPI ribbon (counts LGAs above crime-rate threshold vs slider value).
 if high_risk > cr_thresh:
     risk_cls = "neg"
     risk_icon = "⚠"
@@ -586,6 +619,7 @@ st.markdown("<div style='height:8px'></div>", unsafe_allow_html=True)
 
 # ══════════════════════════════════════════════════════════════════════════════
 # ACT 1 — THE SCALE
+# Annual statewide totals + top offence categories within the filtered slice `fc`.
 # ══════════════════════════════════════════════════════════════════════════════
 BLUE_SCALE = [
     [0.0, "#DBEAFE"],
@@ -663,9 +697,8 @@ with col_offbar:
 
 # ══════════════════════════════════════════════════════════════════════════════
 # ACT 2 — WHERE
+# Choropleth (Plotly geo) uses GeoJSON properties.LGA joined to lga_sum metrics.
 # ══════════════════════════════════════════════════════════════════════════════
-import geopandas as gpd
-
 st.markdown(
     """<div class="act-header">
       <div class="act-num">2</div>
@@ -680,7 +713,7 @@ map_col, geo_bar_col = st.columns([1.45, 1])
 # ── LOAD GEO DATA ─────────────────────────────────────────────────────────────
 geo_df = gpd.read_file(os.path.join(BASE_DIR, "nsw_lga.geojson"))
 
-# Clean LGA names for matching
+# Normalise keys so GeoJSON features align with CSV `LGA` strings after merges/filters.
 geo_df["LGA"] = geo_df["LGA"].astype(str).str.strip()
 geo_json = geo_df.__geo_interface__
 
@@ -723,6 +756,7 @@ with map_col:
         color_continuous_scale="Blues",
     )
 
+    # Station overlay — scattergeo shares lon/lat with choropleth base layer.
     police_df = police_geo_df.dropna(subset=["Latitude", "Longitude"]).copy()
 
     fig.add_trace(
@@ -848,6 +882,7 @@ with geo_bar_col:
     st.plotly_chart(fig_geobar, use_container_width=True)
 # ══════════════════════════════════════════════════════════════════════════════
 # ACT 3 — WHEN
+# Month × year grid heatmap + multi-series YoY for top offence categories.
 # ══════════════════════════════════════════════════════════════════════════════
 st.markdown(
     """<div class="act-header">
@@ -934,6 +969,7 @@ with yoy_col:
 
 # ══════════════════════════════════════════════════════════════════════════════
 # ACT 4 — CONTEXT
+# Scatter: crime rate vs station count; bubble area ~ population (sqrt scaling for Plotly).
 # ══════════════════════════════════════════════════════════════════════════════
 st.markdown(
     """<div class="act-header">
@@ -1071,12 +1107,8 @@ st.caption(
     "while colour intensity represents crime rate per 1,000 residents."
 )
 
-# ── Crime Rate Heatmap Map ────────────────────────────────────────────────────
-import geopandas as gpd
-import plotly.graph_objects as go
-import plotly.express as px
-import streamlit as st
-
+# ── Alternate geographic view: Mapbox tiles + choroplethmapbox + centroid bubbles ───────────────
+# Requires Mapbox-aware traces (different from Act 2 geo layout). Uses same GeoJSON + lga_sum slice.
 # ── LOAD GEO DATA ─────────────────────────────────────
 geo_df = gpd.read_file(os.path.join(BASE_DIR, "nsw_lga.geojson"))
 geo_json = geo_df.__geo_interface__
@@ -1187,6 +1219,7 @@ st.plotly_chart(fig, use_container_width=True)
 
 # ══════════════════════════════════════════════════════════════════════════════
 # ACT 5 — THE GAP
+# Crimes-per-station ranking vs user threshold (cps_thresh); table avoids pandas Styler (Streamlit Cloud).
 # ══════════════════════════════════════════════════════════════════════════════
 st.markdown(
     """<div class="act-header">
@@ -1316,8 +1349,9 @@ else:
 
 # ══════════════════════════════════════════════════════════════════════════════
 # ACT 6 — DEEP DIVE
+# Reader-selected LGA sandbox: monthly trend, offence mix, top-3 annual bars (filtered slice).
 # ══════════════════════════════════════════════════════════════════════════════
-RED_ALERT = "#DC2626"
+RED_ALERT = "#DC2626"  # Reserved for consistent alert/red accents in deep-dive charts if extended.
 
 st.markdown(
     """<div class="act-header">
