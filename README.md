@@ -2,13 +2,12 @@
 
 **Group 24**
 
-Public product name on Streamlit Cloud: **Crime Analytics — NSW**.
-
-An interactive Streamlit dashboard exploring crime patterns across New South Wales using cleaned BOCSAR crime data, population context, police station coverage, and LGA boundaries.
+**In-app title (hero header):** **NSW Crime Intelligence.** The same build deploys publicly on **Streamlit Community Cloud** from this repository.
 
 ## Project Overview
 
-Built for a data visualisation coursework portfolio (human-centred narrative, not only a KPI screen). It shows:
+**NSW Crime Intelligence** uses Streamlit as an exploratory interface over cleaned NSW crime aggregates. Inputs include monthly LGA offences (BOCSAR class), statewide daily extracts where applied, ERP-style population denominators joined for crude rates per 1,000 residents, police station inventories for density narratives, and LGA geometries for choropleths. The design targets a coursework portfolio centred on storytelling rather than KPI-only dashboards; key affordances span:
+
 
 - how crime shifts over time across NSW  
 - dominant offence categories and LGA hotspots  
@@ -212,7 +211,7 @@ python -m streamlit run "app.py"
 
 Streamlit theme and widget chrome are governed by **`/.streamlit/config.toml`** (palette, typography, backgrounds). Loaded automatically for local sessions and Streamlit Cloud builds.
 
-## Public dashboard — Crime Analytics — NSW
+## Public dashboard (NSW Crime Intelligence)
 
 **Live deployment (Streamlit Community Cloud):** [https://nsw-crime-dashboard-ykmus7g8t7ptej4ejeunwt.streamlit.app](https://nsw-crime-dashboard-ykmus7g8t7ptej4ejeunwt.streamlit.app)
 
