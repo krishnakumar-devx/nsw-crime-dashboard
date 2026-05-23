@@ -212,7 +212,7 @@ Streamlit theme and widget chrome are governed by **`/.streamlit/config.toml`** 
 
 ## Public dashboard — Crime Analytics — NSW
 
-**Live deployment (Streamlit Community Cloud):** [https://nsw-crime-intelligence.streamlit.app](https://nsw-crime-intelligence.streamlit.app)
+**Live deployment (Streamlit Community Cloud):** [https://nsw-crime-dashboard-ykmus7g8t7ptej4ejeunwt.streamlit.app](https://nsw-crime-dashboard-ykmus7g8t7ptej4ejeunwt.streamlit.app)
 
 **Source repository:** [https://github.com/krishnakumar-devx/nsw-crime-dashboard](https://github.com/krishnakumar-devx/nsw-crime-dashboard)
 
