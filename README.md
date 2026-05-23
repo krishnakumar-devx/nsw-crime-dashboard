@@ -215,8 +215,6 @@ Streamlit theme and widget chrome are governed by **`/.streamlit/config.toml`** 
 
 **Live deployment (Streamlit Community Cloud):** [https://nsw-crime-dashboard-ykmus7g8t7ptej4ejeunwt.streamlit.app](https://nsw-crime-dashboard-ykmus7g8t7ptej4ejeunwt.streamlit.app)
 
-**Walkthrough video (Google Drive folder):** [https://drive.google.com/drive/folders/1Ul5EcDoY-y82Z3DgInSc8dwP1Z6IGwZK?usp=sharing](https://drive.google.com/drive/folders/1Ul5EcDoY-y82Z3DgInSc8dwP1Z6IGwZK?usp=sharing)
-
 **Source repository:** [https://github.com/krishnakumar-devx/nsw-crime-dashboard](https://github.com/krishnakumar-devx/nsw-crime-dashboard)
 
 ## Authors
