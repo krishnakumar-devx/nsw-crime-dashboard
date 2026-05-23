@@ -190,12 +190,21 @@ Python · Streamlit · Pandas · Plotly · GeoPandas · NumPy
 
 ## How to run locally
 
+1. **Open a terminal** (Windows: **PowerShell** or **Command Prompt**; Mac/Linux: **Terminal**). You can also use the **integrated terminal** in VS Code / Cursor (**Terminal → New Terminal**).
+2. **Go to the project folder** — the directory that contains `app.py` and `requirements.txt` (clone or download this repo first, then `cd` into that folder).
+3. **Install dependencies** (once per machine or after updating `requirements.txt`):
+
 ```bash
 pip install -r requirements.txt
+```
+
+4. **Start the app:**
+
+```bash
 python -m streamlit run "app.py"
 ```
 
-Browse to the URL printed in the terminal (default `http://localhost:8501`).
+5. When the terminal shows a local URL, **open it in your browser** (usually **http://localhost:8501**). Keep the terminal **open** while you use the dashboard; press **Ctrl+C** there to stop the server.
 
 ## Design system
 
