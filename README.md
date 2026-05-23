@@ -41,6 +41,8 @@ It also uses:
 
 ## Data dictionary
 
+We document fields in **tables** (variable · definition · data type · provenance). That matches common data‑science practice and aligns with coursework asks for **definitions, types, and provenance** in one obvious place—not “clumsy”; it’s deliberate and easy to audit.
+
 Definitions, types, and provenance for variables used by `app.py`. Types describe how the CSV is read in Python/Pandas unless noted.
 
 **Authoritative NSW recorded-crime statistics portal:** [NSW Bureau of Crime Statistics and Research (BOCSAR)](https://bocsar.nsw.gov.au/) — incident-level downloads used in this project come from BOCSAR **Open datasets** ([statistics dashboards → Open datasets](https://bocsar.nsw.gov.au/statistics-dashboards/open-datasets.html)).
@@ -200,11 +202,33 @@ python -m streamlit run "app.py"
 
 `http://localhost:8501`
 
+## Design system (Streamlit)
+
+This project uses **`/.streamlit/config.toml`** as the Streamlit **design system**: theme colours, background, typography, etc. Streamlit loads it automatically locally and on **Streamlit Community Cloud**, so the public app matches your intended visual polish.
+
+## Public dashboard
+
+**Part 3 deliverable:** a **live** dashboard on Streamlit Cloud. Use the URL Streamlit assigns to your deployed app.
+
+- **Suggested app branding:** Crime Analytics — NSW *(spelling note: **analytics**, not “analystrics”)*  
+- **Example Streamlit Cloud URL slug:** `crime-analytics` → **`https://crime-analytics.streamlit.app`**
+
+⚠️ **Important:** Streamlit chooses the subdomain when you deploy (often from the app name). If your live URL is different—for example **`https://nsw-crime-dashboard.streamlit.app`**—change the line below to whatever appears in your browser after deployment.
+
+**Live app (update to match deployment):** `https://crime-analytics.streamlit.app`
+
+Also paste this working link wherever the LMS/portfolio asks for the public dashboard.
+
 ## Notes
 
 - The boundary GeoJSON file can be large, so a lighter version may be preferable for publishing or deployment.
 - The dashboard depends on local data files being present in the paths shown above.
+- First‑time setup: Python 3.10+ recommended; use a virtual environment if `pip install` warns about conflicts.
 
-## Author
+## Authors
 
-Project prepared as part of a data visualisation coursework submission on NSW crime trends and community safety.
+**Coursework:** Data visualisation — NSW crime narrative / Data Narrative Studio portfolio (crime & community safety theme).
+
+**Group authors (equal attribution unless your subject specifies otherwise):** Dhruv Sharma, Kanishk Duggal, Shreyas Rajesh, Kunal Mistry, Krishna Kumar, Dharani Saravanan, Brian Shimmer.
+
+Roles, data credits, and who built the Streamlit dashboard are listed under **[Credits](#credits)** above — keep that section and this one aligned with your LMS group roster.
