@@ -1,5 +1,7 @@
 # NSW Crime Intelligence Dashboard
 
+**Group 24**
+
 Public product name on Streamlit Cloud: **Crime Analytics — NSW**.
 
 An interactive Streamlit dashboard exploring crime patterns across New South Wales using cleaned BOCSAR crime data, population context, police station coverage, and LGA boundaries.
@@ -220,4 +222,4 @@ Streamlit theme and widget chrome are governed by **`/.streamlit/config.toml`** 
 
 Dhruv Sharma · Kanishk Duggal · Shreyas Rajesh · Kunal Mistry · Krishna Kumar · Dharani Saravanan · Brian Shimmer  
 
-Coursework submission — Data Visualisation (Data Narrative Studio) · NSW Crime Trends & Community Safety.
+Coursework submission — **Group 24** — Data Visualisation (Data Narrative Studio) · NSW Crime Trends & Community Safety.
